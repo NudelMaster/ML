@@ -162,7 +162,16 @@ def visualize_w_final(w):
     plt.imshow(w, cmap = 'seismic', interpolation = 'nearest')
     plt.colorbar()
     plt.title('Weight vector w')
-    plt.axis('off')
+    plt.xlabel('Pixel Column Index (0-27)')
+    plt.ylabel('Pixel Row Index (0-27)')
+
+    tick_positions = np.arange(0, 28, 5)
+
+    plt.xticks(tick_positions, labels=tick_positions)
+
+
+    plt.yticks(tick_positions, labels=tick_positions)
+
     plt.show()
 def main():
 
@@ -173,37 +182,31 @@ def main():
     #
     # # calculate best eta0 over values ranging [-10^5,-10^4,..10^4]
     # best_eta0, best_accuracy, average_accuracies = find_best_eta_0(eta_0_values, train_data, train_labels, validation_data, validation_labels)
+    # # Plot accuracy of validation over eta0 values
+    #
+    # plot_validation_accuracy(eta_0_values, x_labels, 0, average_accuracies)
+    # print("best eta0 is ", best_eta0, "best accuracy is ", best_accuracy)
     #
     # C_values = eta_0_values
     #
     # # calculate best C values using best eta_0
     # best_C, best_accuracy, average_accuracies = find_best_C(C_values, best_eta0, train_data, train_labels, validation_data, validation_labels)
     #
-    # # calculate final w using best_C and best_eta
-    # w_final = SGD_hinge(train_data, train_labels, best_C, best_eta0, 20000)
-    # visualize_w_final(w_final)
-    #
-    #
-    #
-    # print("best eta0 is ", best_eta0)
-    #
-    # # Plot accuracy of validation over eta0 values
-    # plot_validation_accuracy(eta_0_values, x_labels, 0, average_accuracies)
-    #
-    # print("Best C is ", best_C)
-    #
     # # Plot accuracy of validation over C values
     # plot_validation_accuracy(C_values, x_labels, 1, average_accuracies)
+    # print("Best C is ", best_C, "best accuracy is ", best_accuracy)
+    #
+    # # calculate final w using best_C and best_eta
+    # w_final = SGD_hinge(train_data, train_labels, best_C, best_eta0, 20000)
+    # print("Min value of w is ", np.min(w_final), "Max value of w is ", np.max(w_final))
+    #
+    # visualize_w_final(w_final)
     #
     # # Test accuracy over final w value
     #
     # predictions_test = np.where(np.dot(test_data, w_final) > 0, 1, -1)
     # test_accuracy = calc_accuracy(test_labels, predictions_test)
-    # print("Test accuracy is ", test_accuracy)
-
-
-
-
+    # print("Test accuracy is ", test_accuracy, "w final is ", w_final)
 
 if __name__ == '__main__':
     main()
