@@ -82,4 +82,37 @@ X = np.concatenate([X1,X2],axis=1)
 y = np.concatenate([np.ones((n,1)), -np.ones((n,1))], axis=0).reshape([-1])
 
 
+# a+b sections
+clf_linear = svm.SVC(kernel='linear', C = 10)
+clf_homogeneous_2 = svm.SVC(kernel = 'poly', degree = 2, C = 10)
+clf_homogeneous_3 = svm.SVC(kernel = 'poly', degree = 3, C = 10)
+clf_non_homogeneous_2 = svm.SVC(kernel = 'poly', degree = 2, coef0 = 1, C = 10)
+clf_non_homogeneous_3 = svm.SVC(kernel = 'poly', degree = 3, coef0 = 1, C = 10)
 
+clf_linear.fit(X,y)
+clf_homogeneous_2.fit(X,y)
+clf_homogeneous_3.fit(X,y)
+clf_non_homogeneous_2.fit(X,y)
+clf_non_homogeneous_3.fit(X,y)
+
+plot_results([clf_linear, clf_homogeneous_2, clf_homogeneous_3, clf_non_homogeneous_2, clf_non_homogeneous_3], ['linear', 'homog_2', 'homog_3', 'non_homog_2', 'non_homog_3'], X, y)
+
+# c section
+def flip_labels(y):
+  negative_indices = np.where(y < 0)[0]
+  for i in negative_indices:
+    y[i] = -y[i] if np.random.random() <= 0.1 else y[i]
+  return y
+
+clf_rbf = svm.SVC(kernel = 'rbf', gamma = 10, C = 10)
+y_flipped = flip_labels(y)
+clf_non_homogeneous_2.fit(X,y_flipped)
+clf_rbf.fit(X,y_flipped)
+plot_results([clf_non_homogeneous_2, clf_rbf], ['non_homog_2', 'rbf gamma 10'], X, y_flipped)
+
+# changing plots
+gammas = np.arange(1,50,5)
+for gamma in gammas:
+  clf_rbf = svm.SVC(kernel = 'rbf', gamma = gamma, C = 10)
+  clf_rbf.fit(X,y_flipped)
+  plot_results([clf_rbf], [f'rbf gamma {gamma}'], X, y_flipped)
