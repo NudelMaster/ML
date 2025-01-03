@@ -1,12 +1,13 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from IPython.core.pylabtools import figsize
 from sklearn import svm, datasets
 
 
 def plot_results(models, titles, X, y, plot_sv=False):
     # Set-up 2x2 grid for plotting.
-    fig, sub = plt.subplots(1, len(titles))  # 1, len(list(models)))
+    fig, sub = plt.subplots(1, len(titles),figsize=(len(titles) * 12, 10))
 
     X0, X1 = X[:, 0], X[:, 1]
     xx, yy = make_meshgrid(X0, X1)
@@ -27,7 +28,9 @@ def plot_results(models, titles, X, y, plot_sv=False):
         ax.set_yticks(())
         ax.set_title(title)
         ax.set_aspect('equal', 'box')
-    fig.tight_layout()
+
+    fig.subplots_adjust(wspace=0.4, hspace=0.4)
+    fig.tight_layout(pad=2.0)
     plt.show()
 
 def make_meshgrid(x, y, h=0.02):
@@ -82,20 +85,26 @@ X = np.concatenate([X1,X2],axis=1)
 y = np.concatenate([np.ones((n,1)), -np.ones((n,1))], axis=0).reshape([-1])
 
 
-# a+b sections
-clf_linear = svm.SVC(kernel='linear', C = 10)
-clf_homogeneous_2 = svm.SVC(kernel = 'poly', degree = 2, C = 10)
-clf_homogeneous_3 = svm.SVC(kernel = 'poly', degree = 3, C = 10)
-clf_non_homogeneous_2 = svm.SVC(kernel = 'poly', degree = 2, coef0 = 1, C = 10)
-clf_non_homogeneous_3 = svm.SVC(kernel = 'poly', degree = 3, coef0 = 1, C = 10)
+# models for following sections
+clf_linear = svm.SVC(kernel='linear', C=10)
+clf_homogeneous_2 = svm.SVC(kernel='poly', degree=2, C=10)
+clf_homogeneous_3 = svm.SVC(kernel='poly', degree=3, C=10)
+clf_non_homogeneous_2 = svm.SVC(kernel='poly', degree=2, coef0=1, C=10)
+clf_non_homogeneous_3 = svm.SVC(kernel='poly', degree=3, coef0=1, C=10)
 
-clf_linear.fit(X,y)
-clf_homogeneous_2.fit(X,y)
-clf_homogeneous_3.fit(X,y)
-clf_non_homogeneous_2.fit(X,y)
-clf_non_homogeneous_3.fit(X,y)
 
-plot_results([clf_linear, clf_homogeneous_2, clf_homogeneous_3, clf_non_homogeneous_2, clf_non_homogeneous_3], ['linear', 'homog_2', 'homog_3', 'non_homog_2', 'non_homog_3'], X, y)
+def section_a():
+    clf_linear.fit(X, y)
+    clf_homogeneous_2.fit(X, y)
+    clf_homogeneous_3.fit(X, y)
+    plot_results([clf_linear, clf_homogeneous_2, clf_homogeneous_3],
+                 ['linear', 'homog_2', 'homog_3'], X, y)
+
+def section_b():
+    clf_non_homogeneous_2.fit(X, y)
+    clf_non_homogeneous_3.fit(X, y)
+    plot_results([ clf_non_homogeneous_2, clf_non_homogeneous_3],
+                 ['non_homog_2', 'non_homog_3'], X, y)
 
 # c section
 def flip_labels(y):
@@ -104,15 +113,25 @@ def flip_labels(y):
     y[i] = -y[i] if np.random.random() <= 0.1 else y[i]
   return y
 
-clf_rbf = svm.SVC(kernel = 'rbf', gamma = 10, C = 10)
-y_flipped = flip_labels(y)
-clf_non_homogeneous_2.fit(X,y_flipped)
-clf_rbf.fit(X,y_flipped)
-plot_results([clf_non_homogeneous_2, clf_rbf], ['non_homog_2', 'rbf gamma 10'], X, y_flipped)
 
-# changing plots
-gammas = np.arange(1,50,5)
-for gamma in gammas:
-  clf_rbf = svm.SVC(kernel = 'rbf', gamma = gamma, C = 10)
-  clf_rbf.fit(X,y_flipped)
-  plot_results([clf_rbf], [f'rbf gamma {gamma}'], X, y_flipped)
+
+def section_c():
+    clf_rbf = svm.SVC(kernel='rbf', gamma=10, C=10)
+    y_flipped = flip_labels(y)
+    clf_non_homogeneous_2.fit(X,y_flipped)
+    clf_rbf.fit(X,y_flipped)
+    plot_results([clf_non_homogeneous_2, clf_rbf], ['non_homog_2', 'rbf gamma 10'], X, y_flipped)
+
+    # changing plots
+    gammas = [1,5,15,20,50,100]
+    plots = []
+    for gamma in gammas:
+      clf_rbf = svm.SVC(kernel = 'rbf', gamma = gamma, C = 10)
+      clf_rbf.fit(X,y_flipped)
+      plots.append(clf_rbf)
+
+    plot_results(plots, gammas, X, y_flipped)
+if __name__ == '__main__':
+    section_a()
+    section_b()
+    section_c()
